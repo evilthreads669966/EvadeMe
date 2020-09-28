@@ -1,6 +1,6 @@
 # EvadeMe
 ### A heuristics evasion library for Android
-1. Add the maven repository to your project's allprojects closure in the gradle.build file
+1. Add the maven repository to your project's build.gradle file
 ```groovy
 allprojects {
     repositories {
@@ -12,7 +12,7 @@ allprojects {
 2. Add the dependency to your app's build.gradle file
 ```groovy
 dependencies {
-    implementation 'com.github.evilthreads669966:evademe:-SNAPSHOT'
+    implementation 'com.github.evilthreads669966:evademe:1.0'
 }
 ```
 3. Use the evade ktx function inside of any android context.
@@ -22,7 +22,7 @@ evade {
 }.onEscape{
     Toast.makeText(this, "We evaded with networking", Toast.LENGTH_LONG).show()
 }.onSuccess {
-    Toast.makeText(this, "We executed the paylod with networking", Toast.LENGTH_LONG).show()
+    Toast.makeText(this, "We executed the payload with networking", Toast.LENGTH_LONG).show()
 }
 ```
 Any code inside of the evade scoping function is safe from analysis. 

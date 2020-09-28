@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         }.onEscape{
             Toast.makeText(this, "We evaded with networking", Toast.LENGTH_LONG).show()
         }.onSuccess {
-            Toast.makeText(this, "We executed the paylod with networking", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "We executed the payload with networking", Toast.LENGTH_LONG).show()
         }
         evade(requiresNetwork = false) {
             Log.d("EVADE", "I LOVE YOU");
