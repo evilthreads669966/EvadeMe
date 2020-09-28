@@ -1,0 +1,3 @@
+rootProject.name='EvadeMe'
+include ':app'
+include ':evade'
