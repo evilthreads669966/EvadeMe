@@ -12,7 +12,7 @@ allprojects {
 2. Add the dependency to your app's build.gradle file
 ```groovy
 	dependencies {
-		implementation 'com.github.evilthreads669966:evademe:1.0'
+		implementation 'com.github.evilthreads669966:evademe:-SNAPSHOT'
 	}
 ```
 3. Use the evade ktx function inside of any android context.
