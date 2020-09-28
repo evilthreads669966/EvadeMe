@@ -15,3 +15,15 @@ allprojects {
 		implementation 'com.github.evilthreads669966:evademe:1.0'
 	}
 ```
+3. Use the evade ktx function inside of any android context.
+```kotlin
+    evade {
+        Log.d("EVADE", "EVIL THREADS");
+    }.onEscape{
+        Toast.makeText(this, "We evaded with networking", Toast.LENGTH_LONG).show()
+    }.onSuccess {
+        Toast.makeText(this, "We executed the paylod with networking", Toast.LENGTH_LONG).show()
+    }
+```
+Anything code inside of the evade scoping function is safe from analysis. 
+This allows you to develop malware or spyware that is not able to be tested by people.
