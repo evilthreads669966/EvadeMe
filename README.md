@@ -27,7 +27,7 @@ evade {
 }
 ```
 Any code inside of the evade scoping function is safe from analysis. 
-This allows you to develop malware or spyware that is not able to be tested by people.
+This allows you to develop software that is not able to be tested by people.
 ## License
 ```
 Copyright 2020 Chris Basinger
