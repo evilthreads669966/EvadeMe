@@ -75,6 +75,9 @@ If you don't have an IDE preference we would recommend that you use
 ## Contributors
 This project exists thanks to all the people who contribute.
 <a href="https://github.com/evilthreads669966/evademe/graphs/contributors"><img src="https://opencollective.com/evademe/contributors.svg?width=890&button=false" /></a>
+## Talking about EvadeMe
+### Articles
+* [Android Heuristic Evasion](https://medium.com/swlh/evademe-5c2e59083b43)
 ## License
 ```
 Copyright 2020 Chris Basinger
