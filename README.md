@@ -1,6 +1,7 @@
 [![Release](https://jitpack.io/v/evilthreads669966/evademe.svg)](https://jitpack.io/#evilthreads669966/evademe)&nbsp;&nbsp;[![API](https://img.shields.io/badge/API-15%2B-brightgreen.svg?style=plastic)](https://android-arsenal.com/api?level=15)&nbsp;&nbsp;[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-EvadeMe-brightgreen.svg?style=plastic)](https://android-arsenal.com/details/1/8172)&nbsp;&nbsp;[![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://kotlin.link)
 # EvadeMe
 ### A heuristics evasion library for Android with a KTX scoping function.
+## User Instructions
 1. Add the maven repository to your project's build.gradle file
 ```gradle
 allprojects {
@@ -26,8 +27,12 @@ evade {
     Toast.makeText(this, "We executed the payload with networking", Toast.LENGTH_LONG).show()
 }
 ```
-Any code inside of the evade scoping function is safe from analysis. 
-This allows you to develop software that is not able to be tested by people.
+## Important To Know
+- amy code inside of the evade scoping function is safe from analysis.
+- evade is a KTX function with a receiver of type context
+- evade by default assumes that your are passing a function uses internet
+    - If you have a payload that does not require internet then you can pass in false to evade
+        - Passing in false to evade allows to skip evasion checks that are related to network analysis
 ## Ask a Question?
 - Use [Github issues](https://github.com/evilthreads669966/evademe/issues)
 - Send an email to evilthreads669966@gmail.com
