@@ -67,6 +67,5 @@ class MainActivity : AppCompatActivity() {
                 if(!DrawerSniffer.hasPermission(this))
                     DrawerSniffer.requestPermission(this)
             }.ask()
-        }
     }
 }
