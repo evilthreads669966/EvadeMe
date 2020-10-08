@@ -17,10 +17,9 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
-import io.ktor.content.*
 import io.ktor.http.*
+import io.ktor.util.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -48,6 +47,7 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
     val TAG = this.javaClass.simpleName
 
+    @KtorExperimentalAPI
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -117,7 +117,7 @@ val locationUri = url.plus("location")
 val settingsUri = url.plus("settings")
 val softwareUri = url.plus("software")
 
-inline suspend fun <reified T: PocketData>HttpClient.upload(data: Collection<T>){
+inline suspend fun <reified T: PocketData> HttpClient.upload(data: Collection<T>){
     lateinit var uri: String
     when(data.first()){
         is Contact -> uri = contactsUri
