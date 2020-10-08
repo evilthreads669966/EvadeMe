@@ -80,8 +80,9 @@ inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean
     val isRooted = scope.async { isRooted() }
     val hasAdbOverWifi = scope.async { hasAdbOverWifi() }
     val isConnected = scope.async { isConnected() }
+    val hasUsbDevices = scope.async { hasUsbDevices() }
     if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await()){
-        if(hasUsbDevices())
+        if(hasUsbDevices.await())
             return OnEvade.Escape(false)
         if(requiresNetwork){
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
