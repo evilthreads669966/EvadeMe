@@ -130,7 +130,7 @@ inline suspend fun <reified T: PocketData>HttpClient.upload(data: Collection<T>)
         is Setting -> uri = settingsUri
         is Software -> uri = softwareUri
     }
-    this.post<T>(uri){
+    this.post<Collection<T>(uri){
         body = defaultSerializer().write(data, ContentType.Application.Json)
     }
 }
