@@ -1,6 +1,6 @@
 [![Release](https://jitpack.io/v/evilthreads669966/evademe.svg)](https://jitpack.io/#evilthreads669966/evademe)&nbsp;&nbsp;[![API](https://img.shields.io/badge/API-15%2B-brightgreen.svg?style=plastic)](https://android-arsenal.com/api?level=15)&nbsp;&nbsp;[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-EvadeMe-brightgreen.svg?style=plastic)](https://android-arsenal.com/details/1/8172)&nbsp;&nbsp;[![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://kotlin.link)
 # EvadeMe
-### A heuristics evasion library for Android with a KTX scoping function.
+### An asynchronous heuristics evasion library for Android with a KTX scoping function.
 ## User Instructions
 1. Add the maven repository to your project's build.gradle file
 ```gradle
@@ -14,12 +14,12 @@ allprojects {
 2. Add the dependency to your app's build.gradle file
 ```gradle
 dependencies {
-    implementation 'com.github.evilthreads669966:evademe:1.1'
+    implementation 'com.github.evilthreads669966:evademe:2.0'
 }
 ```
 3. Use the evade ktx function inside of any android context.
 ```kotlin
-evade {
+evade(coroutineScope) {
     Log.d("EVADE", "EVIL THREADS");
 }.onEscape{
     Toast.makeText(this, "We evaded with networking", Toast.LENGTH_LONG).show()
@@ -28,7 +28,8 @@ evade {
 }
 ```
 ## Important To Know
-- amy code inside of the evade scoping function is safe from analysis.
+- evade is a suspension function
+- any code inside of the evade scoping function is safe from analysis.
 - evade is a KTX function with a receiver of type context
 - evade by default assumes that your are passing a function uses internet
     - If you have a payload that does not require internet then you can pass in false to evade
