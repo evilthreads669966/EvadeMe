@@ -73,7 +73,7 @@ check multiple conditions regarding whether it is safe in regards to cyber secur
 your payload please pass false as the argument as true is the default value. This will also return a callback for onEscape meaning it was not executed.
 Which immediately after you can register for a callback named onSuccess.*/
 //If we wanted to make this better we could check the state of the sim card(s) allowing us to evade device's without a sim card. However this will cause us to use a dangerous permission called READ_PHONE_STATE
-fun Context.evade(requiresNetwork: Boolean = true, payload: () -> Unit): OnEvade.Escape{
+inline fun Context.evade(requiresNetwork: Boolean = true, payload: () -> Unit): OnEvade.Escape{
     if(!isEmulator && !isRooted() && !hasAdbOverWifi() && !isConnected()){
         if(hasUsbDevices())
             return OnEvade.Escape(false)
@@ -93,10 +93,12 @@ fun Context.evade(requiresNetwork: Boolean = true, payload: () -> Unit): OnEvade
 
 /*Checks whether this phone is connected to a usb device such as a computer. I do not know whether this works but I believe it won't hurt to check*/
 @RequiresApi(Build.VERSION_CODES.HONEYCOMB_MR1)
-private fun Context.hasUsbDevices() = (this.getSystemService(Context.USB_SERVICE) as UsbManager).deviceList.isNotEmpty()
+@PublishedApi
+internal fun Context.hasUsbDevices() = (this.getSystemService(Context.USB_SERVICE) as UsbManager).deviceList.isNotEmpty()
 
 /*Checks whether the app is running on a fake device*/
-private val isEmulator = (Build.DEVICE.contains("generic")
+@PublishedApi
+internal val isEmulator = (Build.DEVICE.contains("generic")
         || Build.FINGERPRINT.contains("generic")
         || Build.MODEL.contains("google_sdk")
         || Build.MODEL.contains("Emulator")
@@ -117,7 +119,8 @@ private val isEmulator = (Build.DEVICE.contains("generic")
         || Build.PRODUCT.contains("simulator"))
 
 /*checks whether the device has a firewall or networking utilities app installed.*/
-private fun Context.hasFirewall(): Boolean {
+@PublishedApi
+internal fun Context.hasFirewall(): Boolean {
     lateinit var packages: List<PackageInfo>
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
         packages = this.packageManager.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES)
@@ -135,7 +138,8 @@ private fun Context.hasFirewall(): Boolean {
 }
 
 /*Checks whether the device is listening to port 5555. This port is used to connect to a computer through wifi on a local network for ADB debugging*/
-private fun Context.hasAdbOverWifi(): Boolean{
+@PublishedApi
+internal fun Context.hasAdbOverWifi(): Boolean{
     var isOpen = false
     val mgr = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
     if(!mgr.isWifiEnabled)
@@ -160,7 +164,8 @@ private fun Context.hasAdbOverWifi(): Boolean{
 
 /*checks whether the network is running through a VPN*/
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-private fun Context.hasVPN(): Boolean{
+@PublishedApi
+internal fun Context.hasVPN(): Boolean{
     val mgr = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     mgr.allNetworks.forEach {network ->
         val capabilities = mgr.getNetworkCapabilities(network)
@@ -171,10 +176,12 @@ private fun Context.hasVPN(): Boolean{
 }
 
 /*checks whether the device has super user powers SU*/
-private fun Context.isRooted() = RootBeer(this).apply { setLogging(false) }.isRooted
+@PublishedApi
+internal fun Context.isRooted() = RootBeer(this).apply { setLogging(false) }.isRooted
 
 /*checks whether there is a usb cord plugged into the phone*/
-private fun Context.isConnected(): Boolean {
+@PublishedApi
+internal fun Context.isConnected(): Boolean {
     val intent = this.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
     val plugged = intent!!.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
