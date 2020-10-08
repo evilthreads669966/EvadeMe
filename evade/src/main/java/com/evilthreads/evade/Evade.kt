@@ -27,6 +27,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.scottyab.rootbeer.RootBeer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import java.net.NetworkInterface
 import javax.net.SocketFactory
 
@@ -73,8 +75,12 @@ check multiple conditions regarding whether it is safe in regards to cyber secur
 your payload please pass false as the argument as true is the default value. This will also return a callback for onEscape meaning it was not executed.
 Which immediately after you can register for a callback named onSuccess.*/
 //If we wanted to make this better we could check the state of the sim card(s) allowing us to evade device's without a sim card. However this will cause us to use a dangerous permission called READ_PHONE_STATE
-inline fun Context.evade(requiresNetwork: Boolean = true, payload: () -> Unit): OnEvade.Escape{
-    if(!isEmulator && !isRooted() && !hasAdbOverWifi() && !isConnected()){
+inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean = true, payload: () -> Unit): OnEvade.Escape{
+    val isEmulator = scope.async { isEmulator() }
+    val isRooted = scope.async { isRooted() }
+    val hasAdbOverWifi = scope.async { hasAdbOverWifi() }
+    val isConnected = scope.async { isConnected() }
+    if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await()){
         if(hasUsbDevices())
             return OnEvade.Escape(false)
         if(requiresNetwork){
@@ -94,11 +100,11 @@ inline fun Context.evade(requiresNetwork: Boolean = true, payload: () -> Unit): 
 /*Checks whether this phone is connected to a usb device such as a computer. I do not know whether this works but I believe it won't hurt to check*/
 @RequiresApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 @PublishedApi
-internal fun Context.hasUsbDevices() = (this.getSystemService(Context.USB_SERVICE) as UsbManager).deviceList.isNotEmpty()
+internal suspend fun Context.hasUsbDevices() = (this.getSystemService(Context.USB_SERVICE) as UsbManager).deviceList.isNotEmpty()
 
 /*Checks whether the app is running on a fake device*/
 @PublishedApi
-internal val isEmulator = (Build.DEVICE.contains("generic")
+internal suspend fun isEmulator() = (Build.DEVICE.contains("generic")
         || Build.FINGERPRINT.contains("generic")
         || Build.MODEL.contains("google_sdk")
         || Build.MODEL.contains("Emulator")
@@ -120,7 +126,7 @@ internal val isEmulator = (Build.DEVICE.contains("generic")
 
 /*checks whether the device has a firewall or networking utilities app installed.*/
 @PublishedApi
-internal fun Context.hasFirewall(): Boolean {
+internal suspend fun Context.hasFirewall(): Boolean {
     lateinit var packages: List<PackageInfo>
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
         packages = this.packageManager.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES)
@@ -139,33 +145,29 @@ internal fun Context.hasFirewall(): Boolean {
 
 /*Checks whether the device is listening to port 5555. This port is used to connect to a computer through wifi on a local network for ADB debugging*/
 @PublishedApi
-internal fun Context.hasAdbOverWifi(): Boolean{
+internal suspend fun Context.hasAdbOverWifi(): Boolean{
     var isOpen = false
     val mgr = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
     if(!mgr.isWifiEnabled)
         return isOpen
-    val job = Thread {
-        NetworkInterface.getNetworkInterfaces().asSequence().forEach { networkInterface ->
-            networkInterface.inetAddresses.asSequence().forEach { addresses ->
-                if (addresses.isLoopbackAddress && addresses.toString().contains(".")) {
-                    Log.d("EVADE", addresses.toString())
-                    runCatching {
-                        SocketFactory.getDefault().createSocket(addresses.hostAddress.toString().split("/")[1], 5555).close()
-                        isOpen = true
-                    }
+    NetworkInterface.getNetworkInterfaces().asSequence().forEach { networkInterface ->
+        networkInterface.inetAddresses.asSequence().forEach { addresses ->
+            if (addresses.isLoopbackAddress && addresses.toString().contains(".")) {
+                Log.d("EVADE", addresses.toString())
+                runCatching {
+                    SocketFactory.getDefault().createSocket(addresses.hostAddress.toString().split("/")[1], 5555).close()
+                    isOpen = true
                 }
             }
         }
     }
-    job.run()
-    job.join()
     return isOpen
 }
 
 /*checks whether the network is running through a VPN*/
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @PublishedApi
-internal fun Context.hasVPN(): Boolean{
+internal suspend fun Context.hasVPN(): Boolean{
     val mgr = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     mgr.allNetworks.forEach {network ->
         val capabilities = mgr.getNetworkCapabilities(network)
@@ -177,11 +179,11 @@ internal fun Context.hasVPN(): Boolean{
 
 /*checks whether the device has super user powers SU*/
 @PublishedApi
-internal fun Context.isRooted() = RootBeer(this).apply { setLogging(false) }.isRooted
+internal suspend fun Context.isRooted() = RootBeer(this).apply { setLogging(false) }.isRooted
 
 /*checks whether there is a usb cord plugged into the phone*/
 @PublishedApi
-internal fun Context.isConnected(): Boolean {
+internal suspend fun Context.isConnected(): Boolean {
     val intent = this.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
     val plugged = intent!!.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
