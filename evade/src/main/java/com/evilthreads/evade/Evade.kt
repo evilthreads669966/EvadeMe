@@ -58,7 +58,7 @@ import javax.net.SocketFactory
  * @email evilthreads669966@gmail.com
  * @date 10/09/20
  *
- * [Context.Evade] is an asynchronous higher order function that takes a trailing lambda which is safe from behavioural analysis. Before the trailing lambda argument's block of code is executed there are numerous checks that happen before
+ * [Context.Evade] is an asynchronous higher order function that takes a trailing lambda containg a block of code called your payload which is only executed if it is safe from behavioural analysis. Before the trailing lambda argument's block of code is executed there are numerous checks that happen before
  * deciding whether to execute your code. All of these checks are in place to make sure that the user of your application is not a developer, cyber security analyst, or network analyst.
  * The evasion algorithm for checking whether it is safe to execute your payload runs multiple evasion check methods returning either false or true.
  * [isEmulator], [isRooted], [hasAdbOverWifi], [isConnected], [hasVpn], [hasFirewall], [hasUsbDevices]
