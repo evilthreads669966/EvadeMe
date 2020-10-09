@@ -60,10 +60,10 @@ import javax.net.SocketFactory
  *
  * [Context.Evade] is an asynchronous higher order function that takes a trailing lambda which is safe from behavioural analysis. Before the trailing lambda argument's block of code is executed there are numerous checks that happen before
  * deciding whether to execute your code. All of these checks are in place to make sure that the user of your application is not a developer, cyber security analyst, or network analyst.
- * The evasion algorithm for checking whether it is safe runs the methods returning either false or true.
+ * The evasion algorithm for checking whether it is safe to execute your payload runs multiple evasion check methods returning either false or true.
  * [isEmulator], [isRooted], [hasAdbOverWifi], [isConnected], [hasVpn], [hasFirewall], [hasUsbDevices]
- * All checks must return false in order for you block of code inside of the trailing lambda payload argument of [Context.evade] to run.
- * [Context.evade] provides two callbacks: onEscape and onSuccess which are provided by [OnEvade.Escape] and [OnEvade.Success] Unfortunately for now you must call [onEscape] before
+ * All checks must return false in order for your block of code inside the trailing lambda payload argument of [Context.evade] to execute.
+ * [Context.evade] provides two callbacks: [onEscape] and [onSuccess] which are provided by [OnEvade.Escape] and [OnEvade.Success] Unfortunately for now you must call [onEscape] before
  * calling [onSuccess] which means that chaining these callbacks in that respective order is requirement.
  * You can bypass two evasion checks if you do not require networking by passing in false to the named argument [requiresNetwork]. Passing in false for [requiresNetwork]
  * allows [Context.evade] to execute your trailing lambda payload without checking [hasFirewall] and [hasVpn].
