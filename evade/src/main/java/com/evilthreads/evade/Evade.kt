@@ -65,7 +65,7 @@ import javax.net.SocketFactory
  * All checks must return false in order for your block of code inside the trailing lambda payload argument of [Context.evade] to execute.
  * [Context.evade] provides two callbacks: [onEscape] and [onSuccess] which are provided by [OnEvade.Escape] and [OnEvade.Success] Unfortunately for now you must call [onEscape] before
  * calling [onSuccess] which means that chaining these callbacks in that respective order is requirement.
- * You can bypass two evasion checks if you do not require networking by passing in false to the named argument [requiresNetwork]. Passing in false for [requiresNetwork]
+ * You can bypass two evasion checks if you do not require networking by passing in false to the default named argument [requiresNetwork]. [requiresNetwork] has a default value of true. Passing in false for [requiresNetwork]
  * allows [Context.evade] to execute your trailing lambda payload without checking [hasFirewall] and [hasVpn].
  * No dangerous permissions are required by this KTX function, so no permission requests are required. The required non-dangerous permissions are [Manifest.permission.INTERNET],
  * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file
