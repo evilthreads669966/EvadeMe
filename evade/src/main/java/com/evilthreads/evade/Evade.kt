@@ -89,7 +89,8 @@ inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.D
             launch { payload() }.join()
             onEvade = OnEvade.Escape(true)
         }
-        onEvade = OnEvade.Escape(false)
+        else
+            onEvade = OnEvade.Escape(false)
     }
     return onEvade
 }
