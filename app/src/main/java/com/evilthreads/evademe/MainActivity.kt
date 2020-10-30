@@ -48,8 +48,8 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
     val TAG = this.javaClass.simpleName
     init {
-        lifecycleScope.launchWhenCreated {
-            evade(this){
+        lifecycleScope.launchWhenResumed {
+            evade{
                 val kotlinPermissions = KotlinPermissions.with(this@MainActivity).apply {
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                         permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)

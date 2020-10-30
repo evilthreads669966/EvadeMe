@@ -14,26 +14,40 @@ allprojects {
 2. Add the dependency to your app's build.gradle file
 ```gradle
 dependencies {
-    implementation 'com.github.evilthreads669966:evademe:2.0.3'
+    implementation 'com.github.evilthreads669966:evademe:2.1'
 }
 ```
 3. Use the evade ktx function inside of any android context.
 ```kotlin
-evade(coroutineScope) {
+//evade switches to Dispatchers.Default for trailing lambda
+//by default assumes you require networking inside of trailing lambda
+evade {
     Log.d("EVADE", "EVIL THREADS");
 }.onEscape{
     Toast.makeText(this, "We evaded with networking", Toast.LENGTH_LONG).show()
 }.onSuccess {
     Toast.makeText(this, "We executed the payload with networking", Toast.LENGTH_LONG).show()
 }
+
+//maby want to switch over to Dispatcher.IO because you're doing database transaction or file I/O
+evade(Dispatchers.IO) {
+    Log.d("EVADE", "EVIL THREADS");
+}
+
+//maby you don't require any networking for your payload inside of trailing lambda
+evade(requiresNetworking = false) {
+    Log.d("EVADE", "EVIL THREADS");
+}
 ```
 ## Important To Know
 - evade is a suspension function
 - any code inside of the evade scoping function is safe from analysis.
 - evade is a KTX function with a receiver of type context
-- evade by default assumes that your are passing a function uses internet
-    - If you have a payload that does not require internet then you can pass in false to evade
-        - Passing in false to evade allows to skip evasion checks that are related to network analysis
+- evade by default assumes that your are passing a function that uses internet
+  - If you have a payload that does not require internet then you can pass false to requiresNetworking optional parameter
+    - Passing in false to evade allows to skip evasion checks that are related to network analysis
+- evade trailing lambda runs your payload within Dispatchers.Default
+  - you can change this by passing in a different type of CoroutineDispatcher to evade's optional parameter named dispatcher.
 ## Ask a Question?
 - Use [Github issues](https://github.com/evilthreads669966/evademe/issues)
 - Send an email to evilthreads669966@gmail.com

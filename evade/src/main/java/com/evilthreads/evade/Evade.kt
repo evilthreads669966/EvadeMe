@@ -28,9 +28,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.scottyab.rootbeer.RootBeer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.net.NetworkInterface
 import javax.net.SocketFactory
 /*
@@ -61,37 +59,38 @@ import javax.net.SocketFactory
  * [Context.Evade] is an asynchronous higher order function that takes a trailing lambda which is safe from behavioural analysis. Before the trailing lambda argument's block of code is executed there are numerous checks that happen before
  * deciding whether to execute your code. All of these checks are in place to make sure that the user of your application is not a developer, cyber security analyst, or network analyst.
  * The evasion algorithm for checking whether it is safe runs the methods returning either false or true.
- * [isEmulator], [isRooted], [hasAdbOverWifi], [isConnected], [hasVpn], [hasFirewall], [hasUsbDevices]
+ * [isEmulator], [Context.isRooted], [Context.hasAdbOverWifi], [Context.isConnected], [Context.hasVpn], [Context.hasFirewall], [Context.hasUsbDevices]
  * All checks must return false in order for you block of code inside of the trailing lambda payload argument of [Context.evade] to run.
  * [Context.evade] provides two callbacks: onEscape and onSuccess which are provided by [OnEvade.Escape] and [OnEvade.Success] Unfortunately for now you must call [onEscape] before
  * calling [onSuccess] which means that chaining these callbacks in that respective order is requirement.
  * You can bypass two evasion checks if you do not require networking by passing in false to the named argument [requiresNetwork]. Passing in false for [requiresNetwork]
- * allows [Context.evade] to execute your trailing lambda payload without checking [hasFirewall] and [hasVpn].
+ * allows [Context.evade] to execute your trailing lambda payload without checking [Context.hasFirewall] and [Context.hasVpn].
  * No dangerous permissions are required by this KTX function, so no permission requests are required. The required non-dangerous permissions are [Manifest.permission.INTERNET],
- * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file
- * when compiling.
+ * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file when compiling.
  **/
-inline suspend fun Context.evade(scope: CoroutineScope, requiresNetwork: Boolean = true, crossinline payload: () -> Unit): OnEvade.Escape{
-    val isEmulator = scope.async { isEmulator() }
-    val isRooted = scope.async { isRooted() }
-    val hasAdbOverWifi = scope.async { hasAdbOverWifi() }
-    val isConnected = scope.async { isConnected() }
-    val hasUsbDevices = scope.async { hasUsbDevices() }
-    val hasVpn = scope.async {
-        if(requiresNetwork && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            return@async hasVPN()
-        false
+inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.Default, requiresNetwork: Boolean = true, crossinline payload: () -> Unit): OnEvade.Escape{
+    lateinit var onEvade: OnEvade.Escape
+    withContext(dispatcher){
+        val isEmulator = async { isEmulator }
+        val isRooted = async { isRooted() }
+        val hasAdbOverWifi = async { hasAdbOverWifi() }
+        val isConnected = async { isConnected() }
+        val hasUsbDevices = async { hasUsbDevices() }
+        var hasFirewall: Deferred<Boolean>? = null
+        var hasVpn: Deferred<Boolean>? = null
+        if(requiresNetwork){
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                hasVpn = async { hasVPN() }
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                hasFirewall = async { hasFirewall() }
+        }
+        if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.let { it.await() } ?: false) && !(hasFirewall?.let { it.await() } ?: false)){
+            launch { payload() }.join()
+            onEvade = OnEvade.Escape(true)
+        }
+        onEvade = OnEvade.Escape(false)
     }
-    val hasFirewall = scope.async {
-        if(requiresNetwork && Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-            return@async hasFirewall()
-        false
-    }
-    if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !hasVpn.await() && !hasFirewall.await()){
-        scope.launch { payload() }
-        return OnEvade.Escape(true)
-    }
-    return OnEvade.Escape(false)
+    return onEvade
 }
 
 class OnEvade{
@@ -120,25 +119,27 @@ internal suspend fun Context.hasUsbDevices() = (this.getSystemService(Context.US
 
 /*Checks whether the app is running on a fake device*/
 @PublishedApi
-internal suspend fun isEmulator() = (Build.DEVICE.contains("generic")
-        || Build.FINGERPRINT.contains("generic")
-        || Build.MODEL.contains("google_sdk")
-        || Build.MODEL.contains("Emulator")
-        || Build.MODEL.contains("Android SDK built for x86")
-        || Build.BOARD == "QC_Reference_Phone"
-        || Build.MANUFACTURER.contains("Genymotion")
-        || Build.HOST.startsWith("Build") //MSI App Player
-        || (Build.BRAND.startsWith("generic") || Build.DEVICE.startsWith("generic"))
-        || Build.HARDWARE.contains("goldfish")
-        || Build.HARDWARE.contains("ranchu")
-        || Build.PRODUCT.contains("sdk_google")
-        || Build.PRODUCT.contains("google_sdk")
-        || Build.PRODUCT.contains("full_x86")
-        || Build.PRODUCT.contains("sdk")
-        || Build.PRODUCT.contains("sdk_x86")
-        || Build.PRODUCT.contains("vbox86p")
-        || Build.PRODUCT.contains("emulator")
-        || Build.PRODUCT.contains("simulator"))
+internal val isEmulator  by lazy{
+    (Build.DEVICE.contains("generic")
+            || Build.FINGERPRINT.contains("generic")
+            || Build.MODEL.contains("google_sdk")
+            || Build.MODEL.contains("Emulator")
+            || Build.MODEL.contains("Android SDK built for x86")
+            || Build.BOARD == "QC_Reference_Phone"
+            || Build.MANUFACTURER.contains("Genymotion")
+            || Build.HOST.startsWith("Build") //MSI App Player
+            || (Build.BRAND.startsWith("generic") || Build.DEVICE.startsWith("generic"))
+            || Build.HARDWARE.contains("goldfish")
+            || Build.HARDWARE.contains("ranchu")
+            || Build.PRODUCT.contains("sdk_google")
+            || Build.PRODUCT.contains("google_sdk")
+            || Build.PRODUCT.contains("full_x86")
+            || Build.PRODUCT.contains("sdk")
+            || Build.PRODUCT.contains("sdk_x86")
+            || Build.PRODUCT.contains("vbox86p")
+            || Build.PRODUCT.contains("emulator")
+            || Build.PRODUCT.contains("simulator"))
+}
 
 /*checks whether the device has a firewall or networking utilities app installed.*/
 @PublishedApi
