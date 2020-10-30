@@ -28,7 +28,10 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.scottyab.rootbeer.RootBeer
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import java.net.NetworkInterface
 import javax.net.SocketFactory
 /*
@@ -69,6 +72,7 @@ import javax.net.SocketFactory
  * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file
  * when compiling.
  **/
+@ExperimentalStdlibApi
 inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline payload: suspend () -> Unit): OnEvade.Escape{
     val evaded = withContext(Dispatchers.Default){
         val isEmulator = async { isEmulator }
@@ -86,8 +90,7 @@ inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline pa
         }
         !(!isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.await() ?: false) && !(hasFirewall?.await() ?: false))
     }
-    if(!evaded)
-        payload()
+    if(!evaded) payload()
     return OnEvade.Escape(evaded)
 }
 
