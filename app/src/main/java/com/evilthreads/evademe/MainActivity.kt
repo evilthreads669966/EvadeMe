@@ -1,8 +1,10 @@
 package com.evilthreads.evademe
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.evilthreads.drawersnifferlib.DrawerSniffer
