@@ -70,8 +70,7 @@ import javax.net.SocketFactory
  * when compiling.
  **/
 inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline payload: suspend () -> Unit): OnEvade.Escape{
-    var evaded = false
-    withContext(Dispatchers.Default){
+    val evaded = withContext(Dispatchers.Default){
         val isEmulator = async { isEmulator }
         val isRooted = async { isRooted() }
         val hasAdbOverWifi = async { hasAdbOverWifi() }
@@ -85,7 +84,7 @@ inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline pa
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 hasVpn = async { hasVPN() }
         }
-        evaded = !( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.await() ?: false) && !(hasFirewall?.await() ?: false))
+        !(!isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.await() ?: false) && !(hasFirewall?.await() ?: false))
     }
     if(!evaded)
         payload()
