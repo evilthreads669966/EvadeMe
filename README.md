@@ -1,6 +1,6 @@
 [![Release](https://jitpack.io/v/evilthreads669966/evademe.svg)](https://jitpack.io/#evilthreads669966/evademe)&nbsp;&nbsp;[![API](https://img.shields.io/badge/API-15%2B-brightgreen.svg?style=plastic)](https://android-arsenal.com/api?level=15)&nbsp;&nbsp;[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-EvadeMe-brightgreen.svg?style=plastic)](https://android-arsenal.com/details/1/8172)&nbsp;&nbsp;[![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://kotlin.link)
 # EvadeMe
-### An Android library for heuristics evasion that prevents your code from being tested. 
+### An Android library for heuristics evasion that prevents your code from being tested.
 ## User Instructions
 1. Add the maven repository to your project's build.gradle file
 ```gradle
@@ -40,56 +40,10 @@ evade(requiresNetworking = false) {
 - evade by default assumes that your are passing a function that uses internet
   - If you have a payload that does not require internet then you can pass false to requiresNetworking optional parameter
     - Passing in false to evade allows to skip evasion checks that are related to network analysis
-## Ask a Question?
-- Use [Github issues](https://github.com/evilthreads669966/evademe/issues)
-- Send an email to evilthreads669966@gmail.com
-
-## Reporting issues
-Found a bug on a specific feature? Open an issue on [Github issues](https://github.com/evilthreads669966/evademe/issues)
-
-## Contributing
-
-SMS Backdoor is released under the [Apache 2.0 license](https://github.com/evilthreads669966/evademe/blob/master/LICENSE). If you would like to contribute
-something, or simply want to hack then this document should help you get started.
-
-### Code of Conduct
-- Please refrain from using any profanity
-- Please be respectful on [GitHub Issues](https://github.com/evilthreads669966/evademe/issues)
-- Have fun
-
-### [Pull Requests](https://github.com/evilthreads669966/evademe/pulls)
-- Please create a branch prefixed with what you're working on.
-    - FEATURE_ADDING_SOMETHING
-    - BUG_FIXING_SOMETHING
-    - REFACTOR_CHANGING_SOMETHING
-- Once you're done with your commits to this branch hit a [pull request](https://github.com/evilthreads669966/evademe/pulls) off and I'll look at it and most likely accept it if it looks good.
-
-### Using [GitHub Issues](https://github.com/evilthreads669966/evademe/issues)
-We use [GitHub issues](https://github.com/evilthreads669966/evademe/issues) to track bugs and enhancements.
-- If you find a bug please fill out an issue report. Provide as much information as possible.
-- If you think of a great idea please fill out an issue as a proposal for your idea.
-
-### Code Conventions
-None of these is essential for a pull request, but they will all help.  They can also be
-added after the original pull request but before a merge.
-
-- We use idiomatic kotlin conventions
-- Add yourself as an `@author` to the `.kt` files that you modify or create.
-- Add some comments
-- A few unit tests would help a lot as well -- someone has to do it.
-- If you are able to provide a unit test then do.
-    - Because of the types of libraries I develop often times it is hard to test.
-
-
-### Working with the code
-If you don't have an IDE preference we would recommend that you use
-[Android Studio](https://developer.android.com/studio/)
-## Contributors
-This project exists thanks to all the people who contribute.
-<a href="https://github.com/evilthreads669966/evademe/graphs/contributors"><img src="https://opencollective.com/evademe/contributors.svg?width=890&button=false" /></a>
 ## Talking about EvadeMe
 ### Articles
-- [Android Heuristic Evasion](https://medium.com/swlh/evademe-5c2e59083b43)
+- [Published in the Start Up on Medium](https://medium.com/swlh/evademe-5c2e59083b43)
+- [Featured in Android Weekly](https://www.androidweekly.io/android-dev-weekly-issue-297/)
 ## License
 ```
 Copyright 2020 Chris Basinger
