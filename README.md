@@ -1,6 +1,6 @@
 [![Release](https://jitpack.io/v/evilthreads669966/evademe.svg)](https://jitpack.io/#evilthreads669966/evademe)&nbsp;&nbsp;[![API](https://img.shields.io/badge/API-15%2B-brightgreen.svg?style=plastic)](https://android-arsenal.com/api?level=15)&nbsp;&nbsp;[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-EvadeMe-brightgreen.svg?style=plastic)](https://android-arsenal.com/details/1/8172)&nbsp;&nbsp;[![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://kotlin.link)
 # EvadeMe
-### An asynchronous heuristics evasion library for Android with a KTX scoping function.
+### An Android library for heuristics evasion that prevents your code from being tested. 
 ## User Instructions
 1. Add the maven repository to your project's build.gradle file
 ```gradle
