@@ -25,15 +25,17 @@ import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.scottyab.rootbeer.RootBeer
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import java.net.NetworkInterface
+import java.net.InetAddress
+import java.net.UnknownHostException
+import java.util.*
 import javax.net.SocketFactory
+
 /*
             (   (                ) (             (     (
             )\ ))\ )    *   ) ( /( )\ )     (    )\ )  )\ )
@@ -74,7 +76,7 @@ import javax.net.SocketFactory
  **/
 @ExperimentalStdlibApi
 inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline payload: suspend () -> Unit): OnEvade.Escape{
-    val evaded = withContext(Dispatchers.Default){
+    return withContext(Dispatchers.Default){
         val isEmulator = async { isEmulator }
         val isRooted = async { isRooted() }
         val hasAdbOverWifi = async { hasAdbOverWifi() }
@@ -88,10 +90,10 @@ inline suspend fun Context.evade(requiresNetwork: Boolean = true, crossinline pa
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 hasVpn = async { hasVPN() }
         }
-        !(!isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.await() ?: false) && !(hasFirewall?.await() ?: false))
+        val evaded =  !(!isEmulator.await() && !isRooted.await() && !hasAdbOverWifi.await() && !isConnected.await() && !hasUsbDevices.await() && !(hasVpn?.await() ?: false) && !(hasFirewall?.await() ?: false))
+        if(!evaded) payload()
+        return@withContext OnEvade.Escape(evaded)
     }
-    if(!evaded) payload()
-    return OnEvade.Escape(evaded)
 }
 
 class OnEvade{
@@ -168,16 +170,10 @@ internal suspend fun Context.hasAdbOverWifi(): Boolean{
     val mgr = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
     if(!mgr.isWifiEnabled)
         return isOpen
-    NetworkInterface.getNetworkInterfaces().asSequence().forEach { networkInterface ->
-        networkInterface.inetAddresses.asSequence().forEach { addresses ->
-            if (addresses.isLoopbackAddress && addresses.toString().contains(".")) {
-                Log.d("EVADE", addresses.toString())
-                runCatching {
-                    SocketFactory.getDefault().createSocket(addresses.hostAddress.toString().split("/")[1], 5555).close()
-                    isOpen = true
-                }
-            }
-        }
+    val wifiAddress = this.applicationContext.getWifiIpAddress(mgr)
+    runCatching {
+        SocketFactory.getDefault().createSocket(wifiAddress, 5555).close()
+        isOpen = true
     }
     return isOpen
 }
@@ -187,7 +183,7 @@ internal suspend fun Context.hasAdbOverWifi(): Boolean{
 @PublishedApi
 internal suspend fun Context.hasVPN(): Boolean{
     val mgr = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    mgr.allNetworks.forEach {network ->
+    mgr.allNetworks.forEach { network ->
         val capabilities = mgr.getNetworkCapabilities(network)
         if(capabilities!!.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
             return true
@@ -207,4 +203,24 @@ internal suspend fun Context.isConnected(): Boolean {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
         return plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB || plugged == BatteryManager.BATTERY_PLUGGED_WIRELESS
     return plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB
+}
+
+private suspend fun Context.getWifiIpAddress(wifiManager: WifiManager): String?{
+    val intRepresentation = wifiManager.dhcpInfo.ipAddress
+    val addr = intToInetAddress(intRepresentation)
+    return addr?.hostAddress
+}
+
+fun intToInetAddress(hostAddress: Int): InetAddress? {
+    val addressBytes = byteArrayOf(
+        (0xff and hostAddress).toByte(),
+        (0xff and (hostAddress shr 8)).toByte(),
+        (0xff and (hostAddress shr 16)).toByte(),
+        (0xff and (hostAddress shr 24)).toByte()
+    )
+    return try {
+        InetAddress.getByAddress(addressBytes)
+    } catch (e: UnknownHostException) {
+        throw AssertionError()
+    }
 }
