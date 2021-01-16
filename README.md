@@ -42,8 +42,9 @@ evade(requiresNetworking = false) {
     - Passing in false to evade allows to skip evasion checks that are related to network analysis
 ## Talking about EvadeMe
 ### Articles
-- [Published in the Start Up on Medium](https://medium.com/swlh/evademe-5c2e59083b43)
+- [Published by The Startup on Medium](https://medium.com/swlh/evademe-5c2e59083b43)
 - [Featured in Android Weekly](https://www.androidweekly.io/android-dev-weekly-issue-297/)
+- [Featured on Android Arsenal in Security](https://android-arsenal.com/details/1/8172)
 ## License
 ```
 Copyright 2020 Chris Basinger
