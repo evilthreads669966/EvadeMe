@@ -211,7 +211,7 @@ private suspend fun Context.getWifiIpAddress(wifiManager: WifiManager): String?{
     return addr?.hostAddress
 }
 
-fun intToInetAddress(hostAddress: Int): InetAddress? {
+private suspend fun intToInetAddress(hostAddress: Int): InetAddress? {
     val addressBytes = byteArrayOf(
         (0xff and hostAddress).toByte(),
         (0xff and (hostAddress shr 8)).toByte(),
