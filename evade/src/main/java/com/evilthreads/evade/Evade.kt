@@ -158,7 +158,9 @@ internal suspend fun Context.hasFirewall(): Boolean {
             || name.contains("port scanner") || name.contains("network scanner")
             || name.contains("network analysis") || name.contains("ip tools")
             || name.contains("net scan") || name.contains("network analyzer")
-            || name.contains("pack"))
+            || name.contains("packet capture") || name.contains("pcap") || name.contains("wicap")
+            || name.contains("netcapture") || name.contains("sniffer") || name.contains("vnet") || name.contains("network log") ||
+                name.contains("network monitor") || name.contains("network tools") || name.contains("network utilities") || name.contains("network utility"))
             return true
     }
     return false
