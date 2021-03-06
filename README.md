@@ -14,7 +14,7 @@ allprojects {
 2. Add the dependency to your app's build.gradle file
 ```gradle
 dependencies {
-    implementation 'com.github.evilthreads669966:evademe:2.2'
+    implementation 'com.github.evilthreads669966:evademe:2.2.1'
 }
 ```
 3. Use the evade ktx function inside of any android context.
